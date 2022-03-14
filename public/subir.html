@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Subir archivo</h1>
+    <label for="archivo">Archivo</label>
+    <input type="file" name="archivo" id="archivo">
+    <script>
+        document.querySelector('#archivo').addEventListener('change', event => {
+            handleImageUpload(event)
+        })
+ 
+        const handleImageUpload = event => {
+            const files = event.target.files;
+            const formData = new FormData();
+            formData.append('archivo', files[0]);
+            fetch(getAbsolutePath() +"subir", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.msg)
+                    alert(data.msg)
+                })
+                .catch(error => {
+                    console.error(error)
+                    alert(error)
+                })
+        }
+ 
+        function getAbsolutePath() {
+      var loc = window.location;
+      var pathName = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') + 1);
+      return loc.href.substring(0, loc.href.length - ((loc.pathname + loc.search + loc.hash).length - pathName.length));
+    }
+ 
+    </script>
+</body>
+ 
+</html>

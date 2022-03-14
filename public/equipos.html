@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    </head>
+    <body>
+        <div>TODO write content</div>
+        <button id="btnEquipos">Cargar Equipo</button>
+        <button id="btnEquipo">Carga Equipo</button>
+        
+        <button id="btnBorraEquipo">Borra Equipo</button>
+        <button type="button" class="btn btn-primary" id="abreParaInsertar">
+            Nuevo Equipo
+        </button>
+        <input type="number" id="idEquipo" value="1">
+        <div id="formulario">
+            
+        </div>
+        <table id="tablaEquipos" class="table">
+            
+        </table>
+        <div id="divEquipos"></div>
+        
+        <a href="index.html">login</a>
+        <!---*************** VENTANA MODAL ***************-->
+        <!-- The Modal -->
+<div class="modal" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Modal Heading</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">       
+        <form action="/subir2" method="post" enctype="multipart/form-data">
+          <h1>Nuevo Producto</h1>
+            <input type="hidden" name="id" id="id">
+            <p>Nombre:<input type="text" name="nombre" id="nombre"></p>
+            <p>Dorsal:<input type="text" name="categoria" id="dorsal"></p>
+            <p>Equipo:<input type="text" name="precio" id="equipo"></p>
+            <p><input type="file" name="imagen" id="imagen"></p>           
+          </form>
+            
+      </div>
+    
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button id="btnInsertaEquipo">Inserta Equipo</button>
+        <button id="btnActualizaEquipo" class="btn btn-primary" data-dismiss="modal">Actualiza Equipo</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+        <!--- *************** FIN DE VENTANA MODAL **************-->
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> 
+        
+        <script>
+            cabeceras = new Headers();
+
+            cabeceras.append("x-token",localStorage.getItem("token"));
+            cabeceras.append("Content-type", "application/json; charset=UTF-8");
+
+            document.getElementById("btnEquipos").addEventListener('click',cargaEquipos);
+            document.getElementById("btnEquipo").addEventListener('click',cargaEquipo);
+            document.getElementById("btnActualizaEquipo").addEventListener('click',actualizaEquipo);
+             document.getElementById("btnInsertaEquipo").addEventListener('click',insertaEquipo);
+             document.getElementById("btnBorraEquipo").addEventListener('click',borraEquipo);
+             document.getElementById("abreParaInsertar").addEventListener('click',abreParaInsertar);
+
+           let btnInsertaEquipo=document.getElementById("btnInsertaEquipo");
+           let btnActualizaEquipo=document.getElementById("btnActualizaEquipo");
+           
+           function getAbsolutePath() {
+                var loc = window.location;
+                var pathName = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') + 1);
+                return loc.href.substring(0, loc.href.length - ((loc.pathname + loc.search + loc.hash).length - pathName.length));
+            }
+            
+            
+           function cargaEquipos(){
+           alert(getAbsolutePath());
+           let tabla=document.getElementById("tablaEquipos");
+           fetch(getAbsolutePath()+'webresources/generic/equipos/',
+           {headers: 
+               cabeceras})
+               .then(response => {
+                  if(!response.ok){
+                    throw new Error('Error de token')
+                  }else{
+                    return response.json()
+                  }
+                }
+                )
+                .then(json => {console.log(json);
+                //bucle para eliminar todas las filas de la tabla
+                while( tabla.firstChild){
+                    tabla.removeChild(tabla.firstChild);
+                }
+                //recorre todos los productos del array de productos
+                for ( i=0;i<json.length;i++){
+                     //document.getElementById("divProductos").innerHTML+=json[i].nombre;
+                     let fila=document.createElement("tr");
+                     let celdaId=document.createElement("td");
+                     celdaId.textContent=json[i].id;
+
+                     let celdaNombre=document.createElement("td");
+                     celdaNombre.textContent=json[i].nombre;
+                     
+                     let celdaImagen=document.createElement("td");
+                     celdaImagen.textContent=json[i].imagen;
+                     
+                     let celdaDorsal=document.createElement("td");
+                     celdaDorsal.textContent=json[i].dorsal;
+
+                     let celdaEquipo=document.createElement("td");
+                     celdaEquipo.textContent=json[i].equipo;
+                     /*** CELDA BORRAR ****/
+                     let celdaBorrar=document.createElement("td");
+                     let btnBorrar=document.createElement("button");
+                     btnBorrar.setAttribute("onclick","borraEquipoPorId('"
+                             +json[i].id+"')");
+                     btnBorrar.textContent="Borrar";
+                     celdaBorrar.appendChild(btnBorrar);
+                    /*** CELDA ACTUALIZAR ****/
+                     let celdaActualizar=document.createElement("td");
+                     let btnActualizar=document.createElement("button");
+                     btnActualizar.setAttribute("onclick","cargaEquipoPorId('"
+                             +json[i].id+"')");
+                     btnActualizar.textContent="Actualizar";
+                     celdaActualizar.appendChild(btnActualizar);
+                    
+                     fila.appendChild(celdaId);
+                     fila.appendChild(celdaNombre);
+                     fila.appendChild(celdaImagen);
+                     fila.appendChild(celdaDorsal);
+                     fila.appendChild(celdaEquipo);
+                     fila.appendChild(celdaBorrar);
+                     fila.appendChild(celdaActualizar);
+                     
+                     
+                     tabla.appendChild(fila);
+                     
+                 }//fin de for
+                 
+              }).catch(error=>alert(error));
+         } 
+
+         function cargaEquipo() {
+             let idEquipo=document.getElementById("idEquipo").value;
+             cargaEquipoPorId(idEquipo);              
+         }
+         function cargaEquipoPorId(idEquipo){
+             $('#myModal').modal('show');
+
+             btnInsertaEquipo.style.display="none";
+             btnActualizaEquipo.style.display="inline";
+             fetch(getAbsolutePath()+'webresources/generic/equipo/'+idEquipo,
+             {headers: 
+               cabeceras}
+                )
+                .then(response => {
+                  if(!response.ok){
+                    throw new Error('Error de token')
+                  }else{
+                    return response.json()
+                  }
+                }
+                )
+                .then(json => {
+                    console.log(json);
+                    document.getElementById("formulario").style.display="block";
+                    document.getElementById("id").value=json.id;
+                    document.getElementById("nombre").value=json.nombre;
+                    document.getElementById("imagen").value=json.imagen;
+                    document.getElementById("dorsal").value=json.dorsal;
+                    document.getElementById("equipo").value=json.equipo;
+                })
+                .catch(error=>alert(error));
+         }
+         
+         function abreParaInsertar(){
+             $('#myModal').modal('show');
+
+             btnInsertaEquipo.style.display="inline";
+             btnActualizaEquipo.style.display="none";
+         }
+         function actualizaEquipo(){
+              fetch(getAbsolutePath()+'webresources/generic/equipos/'+document.getElementById("id").value,{
+             method: 'PUT',
+             headers: 
+               cabeceras,
+             body: JSON.stringify({
+               id: document.getElementById("id").value,
+               nombre: document.getElementById("nombre").value,
+               imagen: document.getElementById("imagen").value,
+               dorsal: document.getElementById("dorsal").value,
+               equipo: document.getElementById("equipo").value
+             }),
+            
+           })
+             .then((response) => response.json())
+             .then((json) => console.log(json));
+             cargaEquipos();
+         }
+         
+         function insertaEquipo(){
+              fetch(getAbsolutePath()+'webresources/generic/equipos/', {
+             method: 'POST',
+             headers: cabeceras,
+             body: JSON.stringify({
+               nombre: document.getElementById("nombre").value,
+               imagen: document.getElementById("imagen").value,
+               dorsal: document.getElementById("dorsal").value,
+               equipo: document.getElementById("equipo").value
+             }),
+            
+             
+           })
+             .then((response) => response.json())
+             .then((json) => console.log(json));
+             cargaEquipos();
+             $("#myModal").modal("toggle");
+         }
+         
+         function borraEquipo() {
+             let idEquipo=document.getElementById("idEquipo").value;
+             borraEquipoPorId(idEquipo);
+             cargaEquipos();
+             
+         }
+         function borraEquipoPorId(idEquipo){
+           console.log("metodo borrar");
+             fetch(getAbsolutePath()+'webresources/generic/equipos/'+idEquipo, {
+                method: 'DELETE',
+                headers: cabeceras
+              });
+              cargaEquipos();
+         }
+
+         
+        </script>
+    </body>
+</html>
+© 2022 GitHub, Inc.
+Terms
+Priva
